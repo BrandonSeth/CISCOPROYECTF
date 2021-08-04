@@ -1,0 +1,558 @@
+******************CDMX*******************************************
+-----------------------ROUTER CDMX----------------------------------------
+en
+conf ter
+!
+interface fa0/0
+ip add 192.168.3.1 255.255.255.0
+no shut
+!
+interface fa0/1
+ip add 192.168.1.1 255.255.255.0
+no shut
+!
+interface fa1/0
+ip add 192.168.2.1 255.255.255.0
+no shut
+!
+ip dhcp pool LOCAL1
+network 192.168.1.0 255.255.255.0
+default-router 192.168.1.1
+!
+ip dhcp pool LOCAL2
+network 192.168.2.0 255.255.255.0
+default-router 192.168.2.1
+!
+ip dhcp pool VLAN10
+network 192.168.10.0 255.255.255.0
+default-router 192.168.10.254
+!
+ip dhcp pool VLAN20
+network 192.168.20.0 255.255.255.0
+default-router 192.168.20.254
+!
+ip dhcp pool VLAN30
+network 192.168.30.0 255.255.255.0
+default-router 192.168.30.254
+!
+ip route 192.168.10.0 255.255.255.0 192.168.1.2 
+ip route 192.168.20.0 255.255.255.0 192.168.1.2 
+ip route 192.168.30.0 255.255.255.0 192.168.1.2 
+!
+ip route 192.168.10.0 255.255.255.0 192.168.2.2 5 
+ip route 192.168.20.0 255.255.255.0 192.168.2.2 5
+ip route 192.168.30.0 255.255.255.0 192.168.2.2 5
+ ---------------------------------SW LY 3 IZQ------------------------------
+**************Mult Sw0***************
+en
+conf ter
+!
+vlan 10
+vlan 20
+vlan 30
+!
+interface vlan 10
+ip add 192.168.10.254 255.255.255.0
+ip helper-address 192.168.1.1
+!
+interface vlan 20
+ip add 192.168.20.254 255.255.255.0
+ip helper-address 192.168.1.1
+!
+interface vlan 30
+ip add 192.168.30.254 255.255.255.0
+ip helper-address 192.168.1.1
+!
+interface FastEthernet0/1
+no switchport
+ip add dhcp
+no shut
+!
+interface FastEthernet0/2
+no switchport
+ip add 192.168.0.1 255.255.255.0
+no shut
+!
+interface FastEthernet0/6
+switchport mode trunk
+switchport trunk allowed vlan 20
+no shut
+!
+interface FastEthernet0/7
+switchport mode trunk
+switchport trunk allowed vlan 20
+no shut
+!
+interface FastEthernet0/3
+switchport trunk allowed vlan 10
+!
+interface FastEthernet0/4
+switchport trunk allowed vlan 20
+!
+interface FastEthernet0/5
+switchport trunk allowed vlan 30
+!
+interface range FastEthernet0/10-13
+channel-group 1 mode desirable
+!
+interface port-channel 1
+switchport trunk allowed vlan 10,20,30
+!
+ip routing
+!
+
+
+**************Mult Sw3***************
+en
+conf ter
+!
+vlan 10
+vlan 20
+vlan 30
+!
+interface vlan 10
+ip add 192.168.10.254 255.255.255.0
+ip helper-address 192.168.2.2
+!
+interface vlan 20
+ip add 192.168.20.254 255.255.255.0
+ip helper-address 192.168.2.2
+!
+interface vlan 30
+ip add 192.168.30.254 255.255.255.0
+ip helper-address 192.168.2.2
+!
+interface FastEthernet0/1
+no switchport
+ip add dhcp
+no shut
+!
+interface FastEthernet0/2
+switchport mode trunk
+switchport trunk allowed vlan 10
+!
+interface FastEthernet0/3
+switchport mode trunk
+switchport trunk allowed vlan 20
+!
+interface FastEthernet0/4
+switchport mode trunk
+switchport trunk allowed vlan 30
+!
+ip routing
+!
+interface range FastEthernet0/10-13
+channel-group 1 mode auto
+!
+interface port-channel 1
+switchport trunk allowed vlan 10,20,30
+ -----------------------------------SW IZQ--------------------------------
+
+*****SW0*************
+en
+conf ter
+!
+vlan 10
+name ADMINISTRACION
+!
+interface fa0/10
+switchport mode access
+switchport access vlan 10
+!
+interface fa0/11
+switchport mode access
+switchport access vlan 10
+!
+interface fa0/1
+switchport mode trunk
+switchport trunk allowed vlan 10
+!
+interface fa0/2
+switchport mode trunk
+switchport trunk allowed vlan 10
+!
+//config para la vlan adm
+int vlan 10
+ip add 192.168.10.99 255.255.255.0
+exit
+line vty 0 15
+pass cisco
+login
+exit
+
+------------------SW 4-----------------
+en
+conf ter
+!
+vlan 20
+name PERSONAL
+!
+interface fa0/10
+switchport mode access
+switchport access vlan 20
+!
+interface fa0/11
+switchport mode access
+switchport access vlan 20
+!
+interface fa0/1
+switchport mode trunk
+switchport trunk allowed vlan 20
+!
+interface fa0/2
+switchport mode trunk
+switchport trunk allowed vlan 20
+!
+//para la vlan administrativa
+vlan 10
+name ADMINISTRACION
+exit
+int vlan 10
+ip add 192.168.10.98 255.255.255.0
+line vty 0 15
+pass cisco
+login
+exit
+
+------------------SW 5-----------------
+en
+conf ter
+!
+vlan 30
+name GENERAL
+!
+interface fa0/10
+switchport mode access
+switchport access vlan 30
+!
+interface fa0/11
+switchport mode access
+switchport access vlan 30
+!
+interface fa0/1
+switchport mode trunk
+switchport trunk allowed vlan 30
+!
+interface fa0/2
+switchport mode trunk
+switchport trunk allowed vlan 30
+!
+// para la vlan administrativa
+vlan 10
+name ADMINISTRACION
+exit
+int vlan 10
+ip add 192.168.10.97 255.255.255.0
+line vty 0 15
+pass cisco
+login
+exit
+
+******************PONIENTE (abajo)*******************************************
+------ROUTER PONIENTE---------
+en
+conf ter
+!
+interface fa0/0
+ip add 192.168.4.1 255.255.255.0
+no shut
+!
+interface fa0/1
+ip add 192.168.5.1 255.255.255.0
+no shut
+!
+interface fa1/0
+ip add 192.168.6.1 255.255.255.0
+no shut
+!
+ip dhcp pool LOCAL1
+network 192.168.5.0 255.255.255.0
+default-router 192.168.5.1
+!
+ip dhcp pool LOCAL2
+network 192.168.6.0 255.255.255.0
+default-router 192.168.6.1
+!
+ip dhcp pool VLAN40
+network 192.168.40.0 255.255.255.0
+default-router 192.168.40.254
+!
+ip dhcp pool VLAN50
+network 192.168.50.0 255.255.255.0
+default-router 192.168.50.254
+!
+ip dhcp pool VLAN60
+network 192.168.60.0 255.255.255.0
+default-router 192.168.60.254
+!
+SW L3 4
+ ---------------------------------SW LY3 (abajo)------------------------------
+**************Mult Sw4***************
+en
+conf ter
+!
+vlan 40
+vlan 50
+vlan 60
+!
+interface vlan 40
+ip add 192.168.40.254 255.255.255.0
+ip helper-address 192.168.5.1
+!
+interface vlan 50
+ip add 192.168.50.254 255.255.255.0
+ip helper-address 192.168.5.1
+!
+interface vlan 60
+ip add 192.168.60.254 255.255.255.0
+ip helper-address 192.168.5.1
+!
+interface FastEthernet0/2
+no switchport
+ip add dhcp
+no shut
+!
+interface FastEthernet0/3
+switchport mode trunk
+switchport trunk allowed vlan 40,50
+!
+interface FastEthernet0/1
+switchport trunk allowed vlan 40,50,60
+!
+interface range FastEthernet0/10-13
+channel-group 1 mode desirable
+!
+interface port-channel 1
+switchport trunk allowed vlan 40,50,60
+!
+ip routing
+!
+
+
+**************Mult Sw1***************
+en
+conf ter
+!
+vlan 40
+vlan 50
+vlan 60
+!
+interface vlan 40
+ip add 192.168.40.254 255.255.255.0
+ip helper-address 192.168.6.1
+!
+interface vlan 50
+ip add 192.168.50.254 255.255.255.0
+ip helper-address 192.168.6.1
+!
+interface vlan 60
+ip add 192.168.60.254 255.255.255.0
+ip helper-address 192.168.6.1
+!
+interface FastEthernet0/1
+no switchport
+ip add dhcp
+no shut
+!
+interface FastEthernet0/2
+switchport mode trunk
+switchport trunk allowed vlan 40,50,60
+!
+interface FastEthernet0/3
+switchport mode trunk
+switchport trunk allowed vlan 40,50
+!
+ip routing
+!
+interface range FastEthernet0/10-13
+channel-group 1 mode auto
+!
+interface port-channel 1
+switchport trunk allowed vlan 40,50,60
+----------------SW 1-------------------------
+en 
+conf terminal
+!
+vlan 40
+vlan 50
+vlan 60
+!
+interface fa0/10
+switchport mode access
+switchport access vlan 40
+!
+interface fa0/15
+switchport mode access
+switchport access vlan 50
+!
+interface fa0/20
+switchport mode access
+switchport access vlan 60
+!
+interface fa0/1
+switchport mode trunk
+switchport trunk allowed 40,50,60
+!
+interface fa0/2
+switchport mode trunk
+switchport trunk allowed 40,50,60
+!
+
+
+***************ISP****************
+--------------R0-----------------
+en 
+!
+conf t
+!
+int se0/2
+ip add 10.10.1.1 255.255.255.252
+no sh
+!
+int se0/0
+ip add 10.10.4.2 255.255.255.252
+no sh
+!
+router ospf 1
+router-id 1.1.1.1
+network 10.10.1.0 0.0.0.255 area 0
+network 10.10.4.0 0.0.0.255 area 0
+default-information originate
+!
+---------------R3------------------
+en 
+!
+conf t
+!
+int se0/2
+ip add 10.10.1.2 255.255.255.252
+no sh
+!
+int se0/3
+ip add 10.10.2.1 255.255.255.252
+no sh
+!
+router ospf 1
+router-id 2.2.2.2
+network 10.10.1.0 0.0.0.255 area 0
+network 10.10.2.0 0.0.0.255 area 0
+
+---------------R1------------------
+
+en 
+!
+conf t
+!
+int se0/3
+ip add 10.10.2.2 255.255.255.252
+no sh
+!
+int se0/1
+ip add 10.10.3.1 255.255.255.252
+no sh
+!
+router ospf 1
+router-id 3.3.3.3
+network 10.10.3.0 0.0.0.255 area 0
+network 10.10.2.0 0.0.0.255 area 0
+
+
+-----------R2------------------------
+
+en 
+!
+conf t
+!
+int se0/0
+ip add 10.10.1.2 255.255.255.252
+no sh
+!
+int se0/3
+ip add 10.10.3.2 255.255.255.252
+no sh
+!
+router ospf 1
+router-id 3.3.3.3
+network 10.10.3.0 0.0.0.255 area 0
+network 10.10.2.0 0.0.0.255 area 0
+
+///////////////////////////////////////
+**************Mult Sw2***************
+en
+conf ter
+!
+vlan 70
+vlan 80
+vlan 90
+!
+interface vlan 70
+ip add 192.168.70.254 255.255.255.0
+ip helper-address 192.168.4.1
+!
+interface vlan 90
+ip add 192.168.90.254 255.255.255.0
+ip helper-address 192.168.4.1
+!
+interface FastEthernet0/1
+no switchport
+ip add dhcp
+no shut
+!
+interface FastEthernet0/2
+no switchport
+ip add 192.168.0.3 255.255.255.0
+no shut
+!
+interface FastEthernet0/3
+switchport trunk allowed vlan 70
+!
+interface FastEthernet0/4
+switchport trunk allowed vlan 90
+!
+interface range FastEthernet0/10-13
+channel-group 3 mode desirable
+!
+interface port-channel 3
+switchport trunk allowed vlan 70,80,90
+!
+ip routing
+!
+
+
+**************Mult Sw5***************
+en
+conf ter
+!
+vlan 70
+vlan 80
+vlan 90
+!
+interface vlan 80
+ip add 192.168.80.254 255.255.255.0
+ip helper-address 192.168.5.1
+!
+interface vlan 90
+ip add 192.168.90.254 255.255.255.0
+ip helper-address 192.168.5.1
+!
+interface FastEthernet0/1
+no switchport
+ip add dhcp
+no shut
+!
+interface FastEthernet0/2
+switchport mode trunk
+switchport trunk allowed vlan 80
+!
+interface FastEthernet0/3
+switchport mode trunk
+switchport trunk allowed vlan 90
+!
+ip routing
+!
+interface range FastEthernet0/10-13
+channel-group 3 mode auto
+!
+interface port-channel 3
+switchport trunk allowed vlan 70,80,90
+
